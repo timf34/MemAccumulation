@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Monitoring</title>
+</head>
+<body>
+    <h1>Memory Monitoring</h1>
+    <p>Enter a URL to parse:</p>
+    <input type="text" id="urlInput" placeholder="Enter URL here">
+    <button onclick="sendUrl()">Send URL</button>
+    <h2>Memory Usage:</h2>
+    <pre id="memoryUsage">Waiting for memory stats...</pre>
+
+    <script>
+        async function sendUrl() {
+            const url = document.getElementById("urlInput").value;
+            if (!url) {
+                alert("Please enter a URL.");
+                return;
+            }
+
+            const response = await fetch("http://127.0.0.1:8000/api/parse_url", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById("memoryUsage").textContent = `Memory Usage:\n${JSON.stringify(data.memory_stats, null, 2)}`;
+            } else {
+                document.getElementById("memoryUsage").textContent = "Error: Could not retrieve memory stats.";
+            }
+        }
+    </script>
+</body>
+</html>

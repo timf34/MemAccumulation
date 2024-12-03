@@ -1,0 +1,4 @@
+pydantic
+fastapi
+requests
+newspaper4k
