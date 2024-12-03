@@ -1,6 +1,9 @@
 import logging
 import psutil
 import gc
+import os
+import psutil
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -48,10 +51,12 @@ def get_memory_usage():
 async def parse_url(request: URLRequest):
     url = request.url
     logging.info(f"Received URL: {url}")
+
+    # Memory stats before processing
     memory_before = get_memory_usage()
 
     try:
-        # Use newspaper to parse the article
+        # Simulate article parsing with newspaper
         article = Article(url)
         article.download()
         article.parse()
@@ -60,6 +65,8 @@ async def parse_url(request: URLRequest):
 
     # Force garbage collection
     gc.collect()
+
+    # Memory stats after processing
     memory_after = get_memory_usage()
 
     return {
