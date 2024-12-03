@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 openai_client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
+    api_key=os.environ.get("OPENAI_KEY"),
 )
 
 app = FastAPI()
@@ -30,10 +30,11 @@ app.add_middleware(
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Memory usage helper
+
 def get_memory_usage():
     process = psutil.Process()
     memory_info = process.memory_info()
+    logging.info(f"Current memory info: {memory_info}")
     memory_stats = {
         "rss": f"{memory_info.rss / (1024 * 1024):.2f} MB",  # Resident Set Size
         "vms": f"{memory_info.vms / (1024 * 1024):.2f} MB",  # Virtual Memory Size
@@ -84,7 +85,7 @@ async def parse_url(request: URLRequest):
     }
 
 
-def split_into_chunks(text: str, max_length: int = 4096) -> List[str]:
+def split_into_chunks(text: str, max_length: int = 2048) -> List[str]:
     """Split text into chunks of a specified maximum length."""
     return [text[i:i+max_length] for i in range(0, len(text), max_length)]
 
@@ -105,7 +106,7 @@ async def generate_tts(text: str, background_tasks: BackgroundTasks):
             )
             audio_filename = f"tts_output_part_{i}.mp3"
             with open(audio_filename, "wb") as f:
-                f.write(response["audio"])
+                f.write(response.content)
             audio_files.append(audio_filename)
         except Exception as e:
             logging.error(f"Error generating TTS for chunk {i}: {str(e)}")
@@ -125,8 +126,9 @@ async def generate_tts_endpoint(request: TTSRequest, background_tasks: Backgroun
 
     # Memory stats before TTS
     memory_before = get_memory_usage()
+    logging.info(f"Memory before TTS: {memory_before}")
 
-    # Perform TTS generation in the background
+    # Perform TTS generation
     audio_files = await generate_tts(text, background_tasks)
 
     # Force garbage collection
@@ -134,6 +136,7 @@ async def generate_tts_endpoint(request: TTSRequest, background_tasks: Backgroun
 
     # Memory stats after TTS
     memory_after = get_memory_usage()
+    logging.info(f"Memory after TTS: {memory_after}")
 
     return {
         "message": f"TTS generation completed for URL: {url}",
@@ -143,3 +146,4 @@ async def generate_tts_endpoint(request: TTSRequest, background_tasks: Backgroun
             "after": memory_after
         }
     }
+

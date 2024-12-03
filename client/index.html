@@ -38,7 +38,7 @@
             }
         }
 
-        async function generateTTS() {
+       async function generateTTS() {
             const url = document.getElementById("urlInput").value;
             if (!url) {
                 alert("Please parse a URL first.");
@@ -54,7 +54,7 @@
             if (response.ok) {
                 const data = await response.json();
                 document.getElementById("audioFiles").textContent = `Audio Files:\n${JSON.stringify(data.audio_files, null, 2)}`;
-                document.getElementById("memoryUsage").textContent = `Memory Usage:\n${JSON.stringify(data.memory_stats, null, 2)}`;
+                document.getElementById("memoryUsage").textContent = `TTS Memory Usage:\n${JSON.stringify(data.memory_stats, null, 2)}`;
             } else {
                 document.getElementById("audioFiles").textContent = "Error: Could not generate TTS.";
             }

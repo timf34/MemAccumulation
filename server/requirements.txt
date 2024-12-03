@@ -2,3 +2,8 @@ pydantic
 fastapi
 requests
 newspaper4k
+lxml[html_clean]
+openai
+psutil
+python-dotenv
+uvicorn
