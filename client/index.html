@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memory Monitoring</title>
+    <title>TTS and Memory Monitoring</title>
 </head>
 <body>
-    <h1>Memory Monitoring</h1>
+    <h1>Memory and TTS Monitoring</h1>
     <p>Enter a URL to parse:</p>
     <input type="text" id="urlInput" placeholder="Enter URL here">
-    <button onclick="sendUrl()">Send URL</button>
+    <button onclick="sendUrl()">Parse URL</button>
+    <button onclick="generateTTS()">Generate TTS</button>
     <h2>Memory Usage:</h2>
     <pre id="memoryUsage">Waiting for memory stats...</pre>
+    <h2>Audio Files:</h2>
+    <pre id="audioFiles">No files generated yet.</pre>
 
     <script>
         async function sendUrl() {
@@ -32,6 +35,28 @@
                 document.getElementById("memoryUsage").textContent = `Memory Usage:\n${JSON.stringify(data.memory_stats, null, 2)}`;
             } else {
                 document.getElementById("memoryUsage").textContent = "Error: Could not retrieve memory stats.";
+            }
+        }
+
+        async function generateTTS() {
+            const url = document.getElementById("urlInput").value;
+            if (!url) {
+                alert("Please parse a URL first.");
+                return;
+            }
+
+            const response = await fetch("http://127.0.0.1:8000/api/generate_tts", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById("audioFiles").textContent = `Audio Files:\n${JSON.stringify(data.audio_files, null, 2)}`;
+                document.getElementById("memoryUsage").textContent = `Memory Usage:\n${JSON.stringify(data.memory_stats, null, 2)}`;
+            } else {
+                document.getElementById("audioFiles").textContent = "Error: Could not generate TTS.";
             }
         }
     </script>
